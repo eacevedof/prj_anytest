@@ -1,0 +1,23 @@
+/* 
+    Document   : css_anytest
+    Created on : 27-nov-2011, 17:02:27
+    Author     : Eduardo Acevedo
+    Description:
+        Purpose of the stylesheet follows.
+*/
+#divAnyFileName
+{
+    border:1px solid #0076A3; 
+    background: #0186ba; 
+    color:white; 
+    font-family: Courier, 'Courier New', monospace;
+}
+
+#divMensaje
+{
+    border:1px solid greenyellow; 
+    background: yellow; 
+    color:black; 
+    font-family: Courier, 'Courier New', monospace;
+}
+

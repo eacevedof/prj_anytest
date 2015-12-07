@@ -1,0 +1,40 @@
+10
+
+dir
+123
+svn+ssh://eduardoaf.com/kunden/homepages/3/d337670657/htdocs/svn_proyectos/proy_anytest/trunk/_the_codebag/classes
+svn+ssh://eduardoaf.com/kunden/homepages/3/d337670657/htdocs/svn_proyectos/proy_anytest
+
+
+
+2013-01-20T13:20:49.087086Z
+117
+u59669765
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+fbd37227-5b97-4986-b566-65ff4762b63c
+
+components
+dir
+
+custom
+dir
+
+helpers
+dir
+
+vendors
+dir
+

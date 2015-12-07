@@ -1,0 +1,183 @@
+<?php
+/**
+ * @author Eduardo Acevedo Farje.
+ * @link www.eduardoaf.com
+ * @version 1.0.2
+ * @name Component GoogleMap3  
+ * @uses google_map_3.js, jquery v1.7
+ */
+
+class GoogleMap3
+{
+    private $_arMarkers = "[]";
+    private $_useMakersNumbers = true;
+    private $_sMapType = "'roadmap'";
+    private $_sIdDivContainer = "'map_canvas'";
+    private $_iZoom = 6;
+    private $_fLatitude = 40.41694; //40.41694, -3.70361 Pta del sol
+    private $_fLongitude = -3.70361;
+    private $_drawLines = false;
+    private $_iWidth = 800;
+    private $_iHeight = 600;
+    
+    //$fLatitud < 45.18786629495072 && $fLatitud >24.654534254781115  
+    //&& $fLongitud > -19.80908203125 && $fLongitud < 4.3828125
+    
+    /**
+     * Formato del array de marcadores:
+       $arMarkers[]=array
+       (
+            "title"=>"un titulo ","content"=>"<b>Un contenido</b>",
+            "latitude"=>"36.643271085342","longitude"=>"-4.578660819468"
+        );
+     * @param array $arMarkers Array anidado tipo tabla filas x columnas 
+     */
+    public function __construct($arMarkers) 
+    { 
+        $this->_arMarkers = $arMarkers;
+    }
+    
+    public function draw_map()
+    {
+ ?>
+
+<script type="text/javascript">
+    gmap3.config.arMarkers = <?php $this->show_js_array_table(); ?>;
+    gmap3.config.sIdDivContainer = <?php $this->get_div_container(); ?>;
+    gmap3.config.iZoom = <?php $this->get_zoom(); ?>;
+    gmap3.config.fLatitude = <?php $this->get_latitude(); ?>;
+    gmap3.config.fLongitude = <?php $this->get_longitude(); ?>;
+    gmap3.config.sMapType = <?php $this->get_maptype(); ?>;
+    gmap3.config.useMarkersNumbers = <?php $this->is_makers_with_numbers(); ?>;
+    gmap3.config.drawLines = <?php $this->do_draw_lines(); ?>;
+    gmap3.config.iHeight = <?php $this->get_height(); ?>;
+    gmap3.config.iWidth = <?php $this->get_width(); ?>;
+    //bug(gmap3,"gmap3");
+    //bug(gmap3.config.arMarkers,"markers");
+    jQuery(document).ready(gmap3.load_map);
+</script>
+<?php
+    }
+
+    private function show_js_array_table()
+    {
+        echo $this->get_js_as_array_table();
+    }
+    
+    private function get_js_as_array_table()
+    {
+        $arTable = $this->_arMarkers;
+        
+        $arItems = array();
+        $sJsArray = "[";
+        foreach($arTable as $i=>$arRow)
+            $arItems[] = $this->get_as_js_array_row($arRow);
+
+        if(!empty($arItems)) $sJsArray .= implode(",", $arItems);
+        $sJsArray .= "]";
+        return $sJsArray;
+    }
+
+    private function get_as_js_array_row($arRow=array())
+    {
+        $arItems = array();
+        $sJsArray = "[";
+        foreach($arRow as $key=>$sFieldValue)
+        {
+            switch($key) 
+            {
+                case "content":
+                case "title":
+                    $arItems[] = $this->get_as_js_string($sFieldValue);
+                break;
+                case "number":
+                case "latitude":
+                case "longitude":
+                case "zindex":
+                    $arItems[] = $sFieldValue;
+                break;
+            }
+        }
+        if(!empty($arItems)) $sJsArray .= implode(",", $arItems);
+        $sJsArray .= "]\n";
+        return $sJsArray;
+        //['sTitle', fLat, fLong, iZindex, sContent, iIconNumber]
+    }
+    
+    private function get_as_js_string($sValue)
+    {
+        return "'$sValue'";
+    }
+    
+    private function distance_calculation($arPoint1,$arPoint2)
+    {
+        $fX1 = $arPoint1["latitude"];
+        $fY1 = $arPoint1["longitude"];
+        $fX2 = $arPoint2["latitude"];
+        $fY2 = $arPoint2["longitude"];
+        
+        if(is_numeric($fX1)&&is_numeric($fY1)&&is_numeric($fX2)&&is_numeric($fY2))
+            $fX1 = sqr(pow(($fX1 - $fX2),2) + pow(($fY1-$fY2),2));
+        $fX1 = round($fX1, 2);
+        return $fX1;
+    }
+    
+    public function sum_distance()
+    {
+        $arPoint1 = array("latitude"=>0,"longitude"=>0);
+        $arPoint2 = array("latitude"=>0,"longitude"=>0);
+        $iNumMarkers =count($this->_arMarkers);
+        $fDistance = 0;
+        for($i=0; $i<$iNumMarkers; $i++)
+        {
+            if($i<($iNumMarkers-1))
+            {
+                $arPoint1["latitude"] = $this->_arMarkers[$i]["latitude"];
+                $arPoint1["longitude"] = $this->_arMarkers[$i]["longitude"];                
+                $arPoint2["latitude"] = $this->_arMarkers[$i+1]["latitude"];
+                $arPoint2["longitude"] = $this->_arMarkers[$i+1]["longitude"];
+                $fDistance += $this->distance_calculation($arPoint1, $arPoint2);
+            }
+        }
+        return $fDistance;
+    }
+    
+    //GETTERS
+    public function get_markers(){return $this->_arMarkers;}
+    public function is_makers_with_numbers()
+    {
+        if($this->_useMakersNumbers) echo "true";
+        else echo "false";
+    }
+    
+    public function do_draw_lines()
+    {
+        if($this->_drawLines) echo "true";
+        else echo "false";
+    }
+    
+    public function get_maptype(){echo $this->_sMapType;}
+    public function get_div_container(){echo $this->_sIdDivContainer;}
+    public function get_zoom(){echo $this->_iZoom;}
+    public function get_latitude(){ echo $this->_fLatitude; }
+    public function get_longitude(){ echo $this->_fLongitude; }
+    public function get_height(){echo $this->_iHeight;}
+    public function get_width(){echo $this->_iWidth;}
+    
+    //SETTERS
+    public function set_markers($arMarkers=array()){ $this->_arMarkers = $arMarkers; }
+    public function set_markers_numbers_off($isOn=false){$this->_useMakersNumbers = $isOn;}
+    
+    public function set_maptype($sValue){$this->_sMapType = strtolower("'$sValue'");}
+    public function set_div_container($sValue){ $this->_sIdDivContainer = "'$sValue'"; }
+    public function set_zoom($iZoom){ $this->_iZoom = $iZoom; }
+    public function set_latitude($fLatitude){ $this->_fLatitude = $fLatitude; }
+    public function set_longitude($fLongitude){ $this->_fLongitude = $fLongitude; }
+    public function draw_lines($isOn=true){ $this->_drawLines = $isOn; }
+    public function set_size_container($iWidth=800,$iHeight=600)
+    {
+        if(!empty($iHeight))$this->_iHeight = $iHeight;
+        if(!empty($iWidth)) $this->_iWidth = $iWidth;        
+    }
+    
+}
